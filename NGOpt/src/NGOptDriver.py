@@ -1,5 +1,5 @@
 # TODO: add 'stop' condition
-# TODO: correct model for amin, amax
+
 
 # main driver for genetic algorithm
 
