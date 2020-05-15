@@ -1,9 +1,15 @@
+# NGOpt Copyright(C) 2020 Krzysztof Zberecki
+# This program comes with ABSOLUTELY NO WARRANTY; for details type 'show w'.
+# This is free software, and you are welcome to redistribute it under certain
+# conditions; type 'show c' for details.
+
 # TODO: remove hardcoded parameters
 
 # genetic operations
 
 from NGOptIndividual import *
 from NGOptRandom import *
+
 
 # from memory_profiler import profile
 
@@ -28,6 +34,7 @@ def minz(zmax, zs):
 
 
 def get_layers(struct):
+    # divides struct into layers
     pos = struct.get_positions()
     chem = struct.get_chemical_symbols()
     debug = 0
@@ -168,7 +175,6 @@ def new_by_switch_layers(ind_in: Individual):
         # 3 - setting layer1 and layer2 atoms with shift
         for i in range(n):
             if i in layer1:
-                # print(i)
                 if min1 > min2:
                     pos[i][2] = pos[i][2] + zshift
                 if min1 < min2:
@@ -176,7 +182,6 @@ def new_by_switch_layers(ind_in: Individual):
                 new_pos.append(pos[i])
                 new_chem.append(chem[i])
             if i in layer2:
-                # print(i)
                 if min1 > min2:
                     pos[i][2] = pos[i][2] - zshift
                 if min1 < min2:
@@ -213,10 +218,7 @@ def new_by_random_coordinates(ind_in: Individual):
         #    
         struct.set_scaled_positions(positions)
         positions_ang = struct.get_positions()
-        # print(positions_ang)
         flag = check_dist(Nat, positions_ang, dmin=1.4)
-        # print(flag)
-    # print(struct)
     ind = Individual(struct, -1)
     return ind
 
@@ -253,6 +255,3 @@ def new_by_shift_coordinate(ind_in: Individual):
     struct.set_scaled_positions(positions)
     ind = Individual(struct)
     return ind
-
-
-

@@ -1,8 +1,10 @@
+# NGOpt Copyright(C) 2020 Krzysztof Zberecki
+# This program comes with ABSOLUTELY NO WARRANTY; for details type 'show w'.
+# This is free software, and you are welcome to redistribute it under certain
+# conditions; type 'show c' for details.
+
 # main class describing individual
 # uses ase structures (i.e. ase class - Atoms)
-
-# import numpy as np
-# from random import randrange
 
 import uuid
 import pickle

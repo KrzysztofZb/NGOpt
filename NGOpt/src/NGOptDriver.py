@@ -1,11 +1,16 @@
+# NGOpt Copyright(C) 2020 Krzysztof Zberecki
+# This program comes with ABSOLUTELY NO WARRANTY; for details type 'show w'.
+# This is free software, and you are welcome to redistribute it under certain
+# conditions; type 'show c' for details.
+
 # TODO: add 'stop' condition
 
-
-# main driver for genetic algorithm
+# main driver for the genetic algorithm
 
 from NGOptOperations import *
 from NGOptConfig import *
 from NGOptDBTools import *
+
 
 # from memory_profiler import profile
 
@@ -24,6 +29,7 @@ def get_best_individual(population):
     print("e_tot_min: " + str(e_tot_min))
     individual = Individual(struct_best)
     return individual
+
 
 class Driver:
 
@@ -54,7 +60,7 @@ class Driver:
 
         create_populations_db(self.dbfile)
 
-    def init_population_random(self,  model=1):
+    def init_population_random(self, model=1):
         # inits random population with model verification, returns list of individuals
         print("generating initial population randomly ...")
         population = []
@@ -96,7 +102,7 @@ class Driver:
             i = i + 1
         return population
 
-    def init_population_from_file(self,dbfile):
+    def init_population_from_file(self, dbfile):
         # reads population from db file, returns list of individuals
         ngen = get_generations_number(dbfile)
         population = get_population_db(dbfile, ngen)

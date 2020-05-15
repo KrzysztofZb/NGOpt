@@ -1,10 +1,15 @@
+# NGOpt Copyright(C) 2020 Krzysztof Zberecki
+# This program comes with ABSOLUTELY NO WARRANTY; for details type 'show w'.
+# This is free software, and you are welcome to redistribute it under certain
+# conditions; type 'show c' for details.
+
 # generation of random structures
 
 from random import random, uniform, randrange
 import random
 import string
 
-from ase import Atoms, Atom
+from ase import Atom
 from ase.build import surface
 
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -16,6 +21,7 @@ from pyxtal.crystal import Tol_matrix
 
 from NGOptIOTools import *
 from NGOptConfig import *
+
 
 # from memory_profiler import profile
 
@@ -37,13 +43,14 @@ def random_str(lenght=10):
     return ''.join(random.choice(letters) for i in range(lenght))
 
 
-def dist(a, b):  # returns distance of two vectors
+def dist(a, b):
+    # returns distance of two vectors
     d = np.sqrt((a[0] - b[0]) * (a[0] - b[0]) + (a[1] - b[1]) * (a[1] - b[1]) + (a[2] - b[2]) * (a[2] - b[2]))
     return d
 
 
 def check_dist(Nat, positions, dmin):
-    # checks if atoms' positions fullfill dmin distance constrain, returns flag 1/0
+    # checks if atoms' positions fulfill dmin distance constrain, returns flag 1/0
     flag = 1
     for i in range(Nat):
         for j in range(Nat):
@@ -152,7 +159,7 @@ def random_structure_model(stoichio, amin, amax, dmin, model_file, Natt=RANDOM_A
 
 
 def random_structure_group(symbols, composition, thickness, tol_factor, model_file, dmin=2.0, Natt=RANDOM_ATTEMPTS):
-    # returns pyxtal generated structure (ase Atoms) with lowest e_tot according to megnet model
+    # returns pyxtal generated structure (ase Atoms) with lowest e_tot according to Megnet model
     tol_m_1 = Tol_matrix(prototype="atomic", factor=tol_factor)
     adapt = AseAtomsAdaptor()
     model = MEGNetModel.from_file(model_file)

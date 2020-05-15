@@ -1,9 +1,13 @@
+# NGOpt Copyright(C) 2020 Krzysztof Zberecki
+# This program comes with ABSOLUTELY NO WARRANTY; for details type 'show w'.
+# This is free software, and you are welcome to redistribute it under certain
+# conditions; type 'show c' for details.
+
 # deep learning models preparation
 # at present works only with the Megnet library
 
 from pymatgen.io.ase import AseAtomsAdaptor
 
-from NGOptDBTools import *
 from NGOptData import *
 from NGOptIOTools import *
 
@@ -18,7 +22,6 @@ from ase.data import atomic_numbers, covalent_radii
 
 
 def prepare_model_megnet(individuals, epochs, outfile, excl=[]):
-    # prepares model file
     # prepares Megnet model based on list of individuals
     # uses total energy per atom
     # excl - excluding particular stoichiometry
@@ -110,4 +113,7 @@ def get_amin_amax(chem_sym, stoichio, model_file):
     x = prepare_dataset(symbols)
     a = loaded_model.predict(np.array([x, ]))
 
-    return a[0][0]-1.0, a[0][0]+0.5
+    # returns interval amin, amax
+    amin = a[0][0]-1.0
+    amax = a[0][0]+0.5
+    return amin, amax

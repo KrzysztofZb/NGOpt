@@ -1,3 +1,8 @@
+# NGOpt Copyright(C) 2020 Krzysztof Zberecki
+# This program comes with ABSOLUTELY NO WARRANTY; for details type 'show w'.
+# This is free software, and you are welcome to redistribute it under certain
+# conditions; type 'show c' for details.
+
 # TODO: use sqlite interface only when stability==True
 # TODO: improve query efficiency when stability==False
 
@@ -5,7 +10,6 @@
 
 import os
 import numpy as np
-import pickle
 
 import ase.db
 from ase import Atoms
@@ -27,19 +31,13 @@ def get_c2db_prototypes(dbfile, prototype, stability=False, smagstate=False):
     data = cur.fetchone()
     print("SQLite version: " + str(format(data)))
 
-    # nstruct = 0
-    # magstate = 'FM'
     dyn_key = 'dynamic_stability_level'
     th_key = 'thermodynamic_stability_level'
-    # gap_key = 'gap'
 
-    # rows = db.select('magstate=FM')
     if prototype != "":
         query = 'class=' + prototype
-        # print(query)
         rows = db.select(query)
     if prototype == "":
-        # rows = db.select('calculator=gpaw')
         rows = db.select('gap>-1')
     print(rows)
 
@@ -47,9 +45,9 @@ def get_c2db_prototypes(dbfile, prototype, stability=False, smagstate=False):
 
     for row in rows:
         id = row.get("id")
-        e_tot = row.get("energy")
+        # e_tot = row.get("energy")
         label = row.get('formula')
-        gap = row.get('gap')
+        # gap = row.get('gap')
         magstate = row.get('magstate')
         magmom = row.get('magmom')
         positions = row.get('positions')
@@ -57,7 +55,7 @@ def get_c2db_prototypes(dbfile, prototype, stability=False, smagstate=False):
         hform = row.get('hform')
         e_tot = row.get('energy')
 
-        # Stability info - not implemented is ase interface
+        # stability info - not implemented is ase interface
         cur.execute("SELECT * FROM number_key_values WHERE id=:id AND key=:dyn_key", {"id": id, "dyn_key": dyn_key})
         data = cur.fetchone()
         if data is not None:
@@ -104,6 +102,7 @@ def get_c2db_prototypes(dbfile, prototype, stability=False, smagstate=False):
 
 
 def create_populations_db(dbfile):
+    # creates empty populations' database
     os.system("rm " + dbfile)
     conn = sqlite3.connect(dbfile)
     cur = conn.cursor()
@@ -126,6 +125,7 @@ def create_populations_db(dbfile):
 
 
 def report_populations_db(dbfile):
+    # all generations' report from the database
     conn = sqlite3.connect(dbfile)
     cur = conn.cursor()
 
@@ -152,6 +152,7 @@ def report_populations_db(dbfile):
 
 
 def get_population_db(dbfile, ngen):
+    # fetch particular population from the database
     population = []
     conn = sqlite3.connect(dbfile)
     cur = conn.cursor()
@@ -168,6 +169,7 @@ def get_population_db(dbfile, ngen):
 
 
 def get_generations_number(dbfile):
+    # get number of generations from the database
     conn = sqlite3.connect(dbfile)
     cur = conn.cursor()
 
