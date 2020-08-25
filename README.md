@@ -11,8 +11,8 @@ To use NGOpt one has to install a couple of external libraries first. The best w
    - pip install megnet
    - pip install pyxtal
    - pip install ase
-3. Register 'code' directory file in your PYTHONPATH
-4. Edit the NGOptConfig.py file and set all the paths
+3. Register NGOpt/src directory in your PYTHONPATH
+4. Edit the NGOptConfig.py file and set all the paths 
 # Documentation
 For more details about NGOpt see http://arxiv.org/abs/2005.06847
 # License
