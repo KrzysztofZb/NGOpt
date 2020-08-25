@@ -13,6 +13,11 @@ To use NGOpt one has to install a couple of external libraries first. The best w
    - pip install ase
 3. Register NGOpt/src directory in your PYTHONPATH
 4. Edit the NGOptConfig.py file and set all the paths 
+# Examples
+In the NGOpt/src directory
+- example_model.py - model generation based on ab-inito data
+- example_optimization.py - optimization of simple compounds with given tensorflow model
+- report.py - data report of data from optimization run
 # Documentation
 For more details about NGOpt see http://arxiv.org/abs/2005.06847
 # License
