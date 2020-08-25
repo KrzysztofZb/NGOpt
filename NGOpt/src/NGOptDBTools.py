@@ -3,24 +3,22 @@
 # This is free software, and you are welcome to redistribute it under certain
 # conditions; type 'show c' for details.
 
-# TODO: use sqlite interface only when stability==True
-# TODO: improve query efficiency when stability==False
-
 # tools for data extraction from various databases
+# now works with c2db database
 
 import os
 import numpy as np
+import pickle
+import sqlite3
 
 import ase.db
 from ase import Atoms
-from ase.io import *
+from ase.io import write, read
 
-import sqlite3
-
-from NGOptIndividual import *
+from NGOptIndividual import Individual
 
 
-def get_c2db_prototypes(dbfile, prototype, stability=False, smagstate=False):
+def get_c2db_prototypes(dbfile, prototype, stability=False, smagstate=False, sgap=0):
     # returns list of Individuals from c2db
     # Connect to the database - ase interface
     db = ase.db.connect(dbfile)
@@ -31,13 +29,19 @@ def get_c2db_prototypes(dbfile, prototype, stability=False, smagstate=False):
     data = cur.fetchone()
     print("SQLite version: " + str(format(data)))
 
+    # nstruct = 0
+    # magstate = 'FM'
     dyn_key = 'dynamic_stability_level'
     th_key = 'thermodynamic_stability_level'
+    # gap_key = 'gap'
 
+    # rows = db.select('magstate=FM')
     if prototype != "":
         query = 'class=' + prototype
+        # print(query)
         rows = db.select(query)
     if prototype == "":
+        # rows = db.select('calculator=gpaw')
         rows = db.select('gap>-1')
     print(rows)
 
@@ -45,9 +49,10 @@ def get_c2db_prototypes(dbfile, prototype, stability=False, smagstate=False):
 
     for row in rows:
         id = row.get("id")
-        # e_tot = row.get("energy")
+        e_tot = row.get("energy")
         label = row.get('formula')
-        # gap = row.get('gap')
+        gap = row.get('gap')
+        #print(gap)
         magstate = row.get('magstate')
         magmom = row.get('magmom')
         positions = row.get('positions')
@@ -55,7 +60,7 @@ def get_c2db_prototypes(dbfile, prototype, stability=False, smagstate=False):
         hform = row.get('hform')
         e_tot = row.get('energy')
 
-        # stability info - not implemented is ase interface
+        # Stability info - not implemented is ase interface
         cur.execute("SELECT * FROM number_key_values WHERE id=:id AND key=:dyn_key", {"id": id, "dyn_key": dyn_key})
         data = cur.fetchone()
         if data is not None:
@@ -78,8 +83,8 @@ def get_c2db_prototypes(dbfile, prototype, stability=False, smagstate=False):
             ind.set_hform(hform)
             individuals.append(ind)
 
-        if stability == True and smagstate == False:
-            if stability_dyn == 3.0 and stability_th == 3.0:
+        if stability == True and smagstate == False and sgap==0:
+            if stability_th == 3.0:
                 struct_ase = Atoms(label, positions=positions, cell=cell, pbc=np.array([True, True, True], dtype=bool))
                 Nat = len(struct_ase.get_chemical_symbols())
                 ind = Individual(struct_ase)
@@ -87,8 +92,18 @@ def get_c2db_prototypes(dbfile, prototype, stability=False, smagstate=False):
                 ind.set_mmtot(magmom)
                 ind.set_hform(hform)
                 individuals.append(ind)
-
-        if stability == True and smagstate == True and magstate == "FM":
+        
+        if stability == True and smagstate == False and sgap>0:
+            if stability_th == 3.0 and gap>0.:
+                struct_ase = Atoms(label, positions=positions, cell=cell, pbc=np.array([True, True, True], dtype=bool))
+                Nat = len(struct_ase.get_chemical_symbols())
+                ind = Individual(struct_ase)
+                ind.set_e_tot(e_tot / float(Nat))
+                ind.set_mmtot(magmom)
+                ind.set_hform(hform)
+                individuals.append(ind)
+        
+        if stability == True and smagstate == True and smagstate == "FM":
             if stability_dyn == 3.0 and stability_th == 3.0 and abs(float(magmom)) > 0.1:
                 struct_ase = Atoms(label, positions=positions, cell=cell, pbc=np.array([True, True, True], dtype=bool))
                 Nat = len(struct_ase.get_chemical_symbols())
@@ -102,7 +117,6 @@ def get_c2db_prototypes(dbfile, prototype, stability=False, smagstate=False):
 
 
 def create_populations_db(dbfile):
-    # creates empty populations' database
     os.system("rm " + dbfile)
     conn = sqlite3.connect(dbfile)
     cur = conn.cursor()
@@ -125,7 +139,6 @@ def create_populations_db(dbfile):
 
 
 def report_populations_db(dbfile):
-    # all generations' report from the database
     conn = sqlite3.connect(dbfile)
     cur = conn.cursor()
 
@@ -152,7 +165,6 @@ def report_populations_db(dbfile):
 
 
 def get_population_db(dbfile, ngen):
-    # fetch particular population from the database
     population = []
     conn = sqlite3.connect(dbfile)
     cur = conn.cursor()
@@ -169,7 +181,6 @@ def get_population_db(dbfile, ngen):
 
 
 def get_generations_number(dbfile):
-    # get number of generations from the database
     conn = sqlite3.connect(dbfile)
     cur = conn.cursor()
 

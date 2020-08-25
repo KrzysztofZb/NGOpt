@@ -5,26 +5,30 @@
 
 # generation of random structures
 
+import numpy as np
+import os
 from random import random, uniform, randrange
 import random
 import string
 
-from ase import Atom
+from ase import Atoms, Atom
 from ase.build import surface
+from ase.io import write, read
 
+# convert Pymatgen Structure to ASE Atoms
 from pymatgen.io.ase import AseAtomsAdaptor
 
+# MEGNetModel - main class, implements the DeepMind's graph networks
 from megnet.models import MEGNetModel
 
+# pyxtal - random crystal generation
 from pyxtal.crystal import random_crystal_2D
 from pyxtal.crystal import Tol_matrix
 
-from NGOptIOTools import *
-from NGOptConfig import *
-
+from NGOptIOTools import IOTools
+from NGOptConfig import RANDOM_ATTEMPTS, SURF_DIST, CELL_Z, DMIN
 
 # from memory_profiler import profile
-
 
 def crystal_to_atoms(crystal):
     # pyxtal crystal class object to ase Atoms class object, returns ase Atoms
@@ -43,14 +47,13 @@ def random_str(lenght=10):
     return ''.join(random.choice(letters) for i in range(lenght))
 
 
-def dist(a, b):
-    # returns distance of two vectors
+def dist(a, b):  # returns distance of two vectors
     d = np.sqrt((a[0] - b[0]) * (a[0] - b[0]) + (a[1] - b[1]) * (a[1] - b[1]) + (a[2] - b[2]) * (a[2] - b[2]))
     return d
 
 
 def check_dist(Nat, positions, dmin):
-    # checks if atoms' positions fulfill dmin distance constrain, returns flag 1/0
+    # checks if atoms' positions fullfill dmin distance constrain, returns flag 1/0
     flag = 1
     for i in range(Nat):
         for j in range(Nat):
@@ -159,7 +162,7 @@ def random_structure_model(stoichio, amin, amax, dmin, model_file, Natt=RANDOM_A
 
 
 def random_structure_group(symbols, composition, thickness, tol_factor, model_file, dmin=2.0, Natt=RANDOM_ATTEMPTS):
-    # returns pyxtal generated structure (ase Atoms) with lowest e_tot according to Megnet model
+    # returns pyxtal generated structure (ase Atoms) with lowest e_tot according to megnet model
     tol_m_1 = Tol_matrix(prototype="atomic", factor=tol_factor)
     adapt = AseAtomsAdaptor()
     model = MEGNetModel.from_file(model_file)

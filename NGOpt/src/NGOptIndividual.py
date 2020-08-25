@@ -3,19 +3,17 @@
 # This is free software, and you are welcome to redistribute it under certain
 # conditions; type 'show c' for details.
 
-# main class describing individual
-# uses ase structures (i.e. ase class - Atoms)
+# main structure describing an individual
 
 import uuid
 import pickle
 import sqlite3 as sqlite
 
-
 class Individual:
 
     def __init__(self, structure, id_symm_group=-1):
         self.id = uuid.uuid1()
-        self.calculator = "VASP"  # default
+        self.calculator = "VASP"  # default calculator
         self.init_structure = structure  # ase Atoms class object
         self.relaxed_structure = None
         self.id_symm_group = id_symm_group  # id of symm. group
@@ -26,7 +24,7 @@ class Individual:
         self.ngen = 0  # generation number
 
     def save_to_db(self, dbfile, ngen):
-        # inserts Individual to database
+        # inserts Individual to sqlite database
         iid = str(self.id)
         calculator = self.calculator
         init_structure = pickle.dumps(self.init_structure)

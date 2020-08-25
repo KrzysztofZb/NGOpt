@@ -3,17 +3,29 @@
 # This is free software, and you are welcome to redistribute it under certain
 # conditions; type 'show c' for details.
 
-# TODO: add 'stop' condition
+# main driver for genetic algorithm
 
-# main driver for the genetic algorithm
+import numpy as np
+import os
+from random import random, uniform, randrange
 
-from NGOptOperations import *
-from NGOptConfig import *
-from NGOptDBTools import *
+from ase.io import write, read
 
+# convert Pymatgen Structure to ASE Atoms
+from pymatgen.io.ase import AseAtomsAdaptor
+
+# MEGNetModel - main class, implements the DeepMind's graph networks
+from megnet.models import MEGNetModel
+
+from NGOptOperations import get_layers, new_by_switch_atoms, new_by_switch_atoms_on_substrate, \
+                            new_by_switch_layers, new_by_shift_coordinate
+from NGOptConfig import VASP_EXEC, RANDOM_ATTEMPTS, SURF_DIST, CELL_Z, DMIN, SIESTA_EXEC, VASP_PSEUDO_PATH
+from NGOptDBTools import create_populations_db, report_populations_db, get_population_db, get_generations_number
+from NGOptIndividual import Individual
+from NGOptRandom import random_structure_model, random_structure_group
+from NGOptIOTools import IOTools
 
 # from memory_profiler import profile
-
 
 def get_best_individual(population):
     e_tot_min = 0.
@@ -30,7 +42,6 @@ def get_best_individual(population):
     individual = Individual(struct_best)
     return individual
 
-
 class Driver:
 
     def __init__(self, Npop, chem_sym, stoichio, model_file, calculator):
@@ -39,13 +50,14 @@ class Driver:
         self.stoichio = stoichio  # stoichiometry - table
         self.model_file = model_file
         self.chem_form = ""  # chemical formula
-        self.calculator = calculator
-        self.amin = 0.
+        self.calculator = calculator # code used for calculations
+        self.amin = 0. # lattice constants interval from which it is drawn
         self.amax = 0.
-        self.dmin = DMIN
-        self.exec = ""
-        self.dbfile = "populations.db"
+        self.dmin = DMIN # minimum distance between atoms
+        self.exec = "" # calculator execution command
+        self.dbfile = "populations.db" # file with individuals' data
 
+        # now works with VASP or Siesta
         if self.calculator == "VASP":
             self.exec = VASP_EXEC
         if self.calculator == "siesta":
@@ -60,8 +72,9 @@ class Driver:
 
         create_populations_db(self.dbfile)
 
-    def init_population_random(self, model=1):
+    def init_population_random(self,  model=1):
         # inits random population with model verification, returns list of individuals
+        # verification regards "bad" struxtures
         print("generating initial population randomly ...")
         population = []
         i = 1
@@ -102,7 +115,7 @@ class Driver:
             i = i + 1
         return population
 
-    def init_population_from_file(self, dbfile):
+    def init_population_from_file(self,dbfile):
         # reads population from db file, returns list of individuals
         ngen = get_generations_number(dbfile)
         population = get_population_db(dbfile, ngen)

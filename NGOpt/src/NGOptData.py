@@ -1,3 +1,10 @@
+# NGOpt Copyright(C) 2020 Krzysztof Zberecki
+# This program comes with ABSOLUTELY NO WARRANTY; for details type 'show w'.
+# This is free software, and you are welcome to redistribute it under certain
+# conditions; type 'show c' for details.
+
+# data for neural network models learning
+
 # ionic radii, source: https://www.webelements.com/
 ionic_radii = {
     "1": 0.012,

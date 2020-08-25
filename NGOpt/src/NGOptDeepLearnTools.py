@@ -4,27 +4,34 @@
 # conditions; type 'show c' for details.
 
 # deep learning models preparation
-# at present works only with the Megnet library
+# at present works with the Megnet library
 
+import numpy as np
+from collections import Counter
+
+# convert Pymatgen Structure to ASE Atoms
 from pymatgen.io.ase import AseAtomsAdaptor
 
-from NGOptData import *
-from NGOptIOTools import *
-
+# MEGNetModel - main class, implements the DeepMind's graph networks
 from megnet.models import MEGNetModel
 from megnet.data.graph import GaussianDistance
 from megnet.data.crystal import CrystalGraph
 
+# keras model from json file
 from keras.models import model_from_json
 
-from collections import Counter
+# atomic data from ASE library
 from ase.data import atomic_numbers, covalent_radii
 
+from NGOptDBTools import  Individual
+from NGOptData import ionic_radii, electronegativity_Allen, ionization_energy
+from NGOptIOTools import IOTools, get_symbols
 
 def prepare_model_megnet(individuals, epochs, outfile, excl=[]):
+    # prepares model file
     # prepares Megnet model based on list of individuals
     # uses total energy per atom
-    # excl - excluding particular stoichiometry
+    # excl - excluding particular stoichiometry - important for network learning
     structures = []
     energies = []
     adapt = AseAtomsAdaptor()
@@ -67,6 +74,7 @@ def prepare_model_megnet(individuals, epochs, outfile, excl=[]):
 
 def prepare_dataset(symbols):
     # prepares dataset for simple model for lattice constant prediction
+    # now it uses 5 sets of data
     occur = Counter(symbols)
     symbols_set = list(dict.fromkeys(symbols))
 
@@ -102,6 +110,7 @@ def prepare_dataset(symbols):
 
 def get_amin_amax(chem_sym, stoichio, model_file):
     # predicts lattice constants based on stoichiometry
+    # returns interval of predicted lattice constants
     json_file = open(model_file + '.json', 'r')
     loaded_model_json = json_file.read()
     json_file.close()
@@ -113,7 +122,4 @@ def get_amin_amax(chem_sym, stoichio, model_file):
     x = prepare_dataset(symbols)
     a = loaded_model.predict(np.array([x, ]))
 
-    # returns interval amin, amax
-    amin = a[0][0]-1.0
-    amax = a[0][0]+0.5
-    return amin, amax
+    return a[0][0]-1.0, a[0][0]+0.5

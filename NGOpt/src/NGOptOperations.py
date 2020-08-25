@@ -3,13 +3,16 @@
 # This is free software, and you are welcome to redistribute it under certain
 # conditions; type 'show c' for details.
 
-# TODO: remove hardcoded parameters
+# all the genetic operations
 
-# genetic operations
+import numpy as np
+from random import random, uniform, randrange
 
-from NGOptIndividual import *
-from NGOptRandom import *
+from ase.io import write, read
+from ase import Atoms
 
+from NGOptRandom import random_str, dist, check_dist, distz, random_structure
+from NGOptIndividual import Individual
 
 # from memory_profiler import profile
 
@@ -34,7 +37,8 @@ def minz(zmax, zs):
 
 
 def get_layers(struct):
-    # divides struct into layers
+    # checks if the structure is layered
+    # if true returns layers as a list of atoms
     pos = struct.get_positions()
     chem = struct.get_chemical_symbols()
     debug = 0
@@ -78,17 +82,14 @@ def get_layers(struct):
 def new_by_switch_atoms(ind_in: Individual):
     # returns individual made by switch of two random atoms
     struct = ind_in.get_relaxed_structure().copy()
-    # print(struct)
     chem_sym = struct.get_chemical_symbols()
     Nat = len(chem_sym)
     if Nat > 2:
         indx1 = randrange(Nat)
-        indx2 = indx1
         flag = 0
         while flag == 0:
             indx2 = randrange(Nat)
             if indx2 != indx1 and chem_sym[indx1] != chem_sym[indx2]:
-                # print(indx1,indx2)
                 chem_sym_new = swap_positions(chem_sym, indx1, indx2)
                 struct.set_chemical_symbols(chem_sym_new)
                 flag = 1
@@ -175,6 +176,7 @@ def new_by_switch_layers(ind_in: Individual):
         # 3 - setting layer1 and layer2 atoms with shift
         for i in range(n):
             if i in layer1:
+                # print(i)
                 if min1 > min2:
                     pos[i][2] = pos[i][2] + zshift
                 if min1 < min2:
@@ -182,6 +184,7 @@ def new_by_switch_layers(ind_in: Individual):
                 new_pos.append(pos[i])
                 new_chem.append(chem[i])
             if i in layer2:
+                # print(i)
                 if min1 > min2:
                     pos[i][2] = pos[i][2] - zshift
                 if min1 < min2:
@@ -218,7 +221,10 @@ def new_by_random_coordinates(ind_in: Individual):
         #    
         struct.set_scaled_positions(positions)
         positions_ang = struct.get_positions()
+        # print(positions_ang)
         flag = check_dist(Nat, positions_ang, dmin=1.4)
+        # print(flag)
+    # print(struct)
     ind = Individual(struct, -1)
     return ind
 
@@ -255,3 +261,6 @@ def new_by_shift_coordinate(ind_in: Individual):
     struct.set_scaled_positions(positions)
     ind = Individual(struct)
     return ind
+
+
+

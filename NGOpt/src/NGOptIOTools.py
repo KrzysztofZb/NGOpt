@@ -11,13 +11,13 @@ import json
 
 from ase import Atoms
 from ase.io import write
-from ase.io.vasp import *
+from ase.io.vasp import read_vasp
 
+# ASE methods used to handla Siesta calculations
 from ase.calculators.siesta.import_functions import xv_to_atoms
 from ase.calculators.siesta import Siesta
 
-from NGOptConfig import *
-
+from NGOptConfig import RANDOM_ATTEMPTS, SURF_DIST, CELL_Z, DMIN, VASP_PSEUDO_PATH
 
 class IOTools:
 
@@ -60,7 +60,7 @@ class IOTools:
             cat = "cat "
             # path from NGOptConfig
             for s in line_sp:
-                cat = cat + self.vasp_pseudo_path + "/POTCAR_" + s + " "
+                cat = cat + self.vasp_pseudo_path+"/POTCAR_" + s + " "
             cat = cat + " > POTCAR"
             tmp.close()
             os.system(cat)
@@ -190,7 +190,7 @@ class IOTools:
                         i = i + 1
         return mmtot
 
-    def get_best_individual(self, out="Individuals", calculator="VASP", mode="2D"):
+    def get_best_individual(self, out="Individuals", calculator="VASP",  mode="2D"):
         # returns e_tot/atom of best individual, mode="2D" or "all", uses Individuals file
         # deprecated
         outfile = open(out, "r")
@@ -223,7 +223,7 @@ class IOTools:
                     struct = read_vasp(poscar)
                     cell = struct.get_cell()
                     z = cell[2][2]
-                    if e_tot < e_tot_min and z > 8. and e_tot > -25.:  # z>8. -> 2D, e_tot/at > -25. to avoid not converged results
+                    if e_tot < e_tot_min and z > 8. and e_tot > -25.: # z>8. -> 2D, e_tot/at > -25. to avoid not converged results
                         e_tot_min = e_tot
                         indx_min = int(tmp)
                         indx_pop_min = indx_pop
@@ -361,7 +361,7 @@ def read_openmx_hashfile(hashfile):
 # other helper functions
 def get_symbols(chem_sym, stoich):
     Nat = len(chem_sym)
-    chem_form = ""
+    chem_form =""
     for i in range(Nat):
         chem_form = chem_form + chem_sym[i] + str(stoich[i])
 
@@ -369,3 +369,4 @@ def get_symbols(chem_sym, stoich):
     symbols = atm.get_chemical_symbols()
 
     return symbols
+
