@@ -3,8 +3,8 @@ Structure prediction of two-dimensional materials based on neural network-driven
 # Install
 To use NGOpt one has to install a couple of external libraries first. The best way to do this is to follow below instructions:
 1. create isolated python environment
-   virtualenv -p python3 ngopt
-   source ngopt/bin/activate
+   - virtualenv -p python3 ngopt
+   - source ngopt/bin/activate
 2. install needed libraries using pip:
    - pip install tensorflow
    - pip install keras
